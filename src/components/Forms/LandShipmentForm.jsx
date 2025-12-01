@@ -1,5 +1,3 @@
-// src/components/Forms/LandShipmentForm.jsx
-
 import { useState, useEffect } from "react";
 import {
   createLandShipment,
@@ -52,7 +50,6 @@ export default function LandShipmentForm({
   const handleChange = (e) => {
     const { name, value } = e.target;
     let newValue = value;
-    // Convertir campos numéricos
     if (
       ["client_id", "product_id", "warehouse_id", "quantity", "price"].includes(
         name
@@ -69,7 +66,6 @@ export default function LandShipmentForm({
     setLoading(true);
     setError(null);
 
-    // Payload limpio, sin descuento ni precio final
     const dataToSend = {
       ...formData,
       quantity: Number(formData.quantity) || 0,
@@ -96,7 +92,6 @@ export default function LandShipmentForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-4">
-        {/* Selectors de Maestros */}
         <div>
           <label className="block text-sm font-medium mb-1">Client</label>
           <select
@@ -152,7 +147,6 @@ export default function LandShipmentForm({
           </select>
         </div>
 
-        {/* Cantidad y Precio */}
         <div>
           <label className="block text-sm font-medium mb-1">Quantity</label>
           <input
@@ -183,7 +177,6 @@ export default function LandShipmentForm({
       </div>
 
       <div className="grid grid-cols-2 gap-4 border-t pt-4">
-        {/* Datos del Envío */}
         <div>
           <label className="block text-sm font-medium mb-1">
             Vehicle Plate (6 chars)

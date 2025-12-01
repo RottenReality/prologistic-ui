@@ -1,6 +1,6 @@
 // src/pages/LandShipments/LandShipmentsList.jsx
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { getLandShipments, deleteLandShipment } from "../../api/landShipments";
 import DataTable from "../../components/Table/DataTable";
 import { getClients } from "../../api/clients";
@@ -12,7 +12,6 @@ export default function LandShipmentsList() {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Filtros
   const [filters, setFilters] = useState({
     client_id: "",
     product_id: "",
@@ -23,7 +22,6 @@ export default function LandShipmentsList() {
     date_to: "",
   });
 
-  // Maestros
   const [clients, setClients] = useState([]);
   const [products, setProducts] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
@@ -32,10 +30,8 @@ export default function LandShipmentsList() {
   const [openForm, setOpenForm] = useState(false);
   const [editingShipment, setEditingShipment] = useState(null);
 
-  // Función auxiliar de formateo (reutilizada dentro de fetchShipments)
   const formatDateString = (dateString) => {
     if (!dateString) return "";
-    // Soporta tanto "YYYY-MM-DD" como "YYYY-MM-DDT..."
     const datePart = dateString.split("T")[0];
     const [year, month, day] = datePart.split("-");
     return `${day}/${month}/${year}`;
@@ -53,13 +49,10 @@ export default function LandShipmentsList() {
       const response = await getLandShipments(cleanFilters);
       const rawData = response.data || [];
 
-      // SOLUCIÓN: Pre-formatear los datos para que DataTable pueda usar 'accessor'
       const formattedData = rawData.map((item) => ({
         ...item,
-        // Creamos campos de texto simples para la tabla
         register_date_fmt: formatDateString(item.register_date),
         delivery_date_fmt: formatDateString(item.delivery_date),
-        // Aseguramos que los números se vean bien
         final_price_fmt: item.final_price ? `$${item.final_price}` : "$0",
       }));
 
@@ -71,7 +64,6 @@ export default function LandShipmentsList() {
     }
   };
 
-  // 1. Carga inicial de Maestros
   useEffect(() => {
     const loadMasterData = async () => {
       try {
@@ -92,7 +84,6 @@ export default function LandShipmentsList() {
     loadMasterData();
   }, []);
 
-  // 2. Carga inicial de Envíos
   useEffect(() => {
     if (masterDataLoaded) {
       fetchShipments();
@@ -129,7 +120,6 @@ export default function LandShipmentsList() {
     <div>
       <h1 className="text-2xl font-semibold mb-6">Land Shipments</h1>
 
-      {/* --- BARRA DE FILTROS --- */}
       <div className="bg-white p-4 shadow rounded-md mb-6 border border-blue-100">
         <h3 className="font-medium mb-3">Filter Shipments</h3>
         <div className="grid grid-cols-4 gap-4 items-end">
@@ -183,7 +173,6 @@ export default function LandShipmentsList() {
             </select>
           </div>
 
-          {/* Inputs */}
           <div>
             <label className="block text-sm font-medium mb-1">Plate</label>
             <input
@@ -229,7 +218,6 @@ export default function LandShipmentsList() {
             />
           </div>
 
-          {/* Botones */}
           <div className="flex justify-end space-x-2">
             <button
               onClick={fetchShipments}
@@ -250,7 +238,6 @@ export default function LandShipmentsList() {
         </div>
       </div>
 
-      {/* --- TABLA DE DATOS --- */}
       <div className="bg-white p-4 shadow rounded-md overflow-x-auto">
         {loading ? (
           <p className="text-gray-500 italic">Loading shipments...</p>
@@ -263,13 +250,12 @@ export default function LandShipmentsList() {
               { label: "Warehouse ID", accessor: "warehouse_id" },
               { label: "Plate", accessor: "plate" },
               { label: "Qty", accessor: "quantity" },
-              // AHORA USAMOS LOS CAMPOS _fmt QUE CREAMOS
               { label: "Reg. Date", accessor: "register_date_fmt" },
               { label: "Del. Date", accessor: "delivery_date_fmt" },
 
               { label: "Price", accessor: "price" },
               { label: "Disc.", accessor: "discount" },
-              { label: "Final Price", accessor: "final_price" }, // o final_price_fmt si prefieres con símbolo
+              { label: "Final Price", accessor: "final_price" },
             ]}
             data={shipments}
             actions={{
@@ -283,7 +269,6 @@ export default function LandShipmentsList() {
         )}
       </div>
 
-      {/* Modal */}
       {openForm && (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-40">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-2xl">
