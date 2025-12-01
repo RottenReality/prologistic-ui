@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from "./components/Layout/Layout";
 import Dashboard from "./pages/Dashboard";
-
 import './App.css'
+import ClientsList from './pages/Clients/ClientsList';
 
 function App() {
 
@@ -12,7 +12,7 @@ function App() {
         <Route path='/' element={<Layout />}>
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="clients" element={<div>Clients</div>} />
+          <Route path="clients" element={<ClientsList/>} />
           <Route path="products" element={<div>Products</div>} />
           <Route path="ports" element={<div>Ports</div>} />
           <Route path="warehouses" element={<div>Warehouses</div>} />
