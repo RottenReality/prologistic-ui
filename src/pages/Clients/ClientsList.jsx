@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getClients, deleteClient } from "../../api/clients";
 import DataTable from "../../components/Table/DataTable";
 import FilterBar from "../../components/Table/FilterBar";
+import ClientForm from "../../components/Forms/ClientForm";
 
 export default function ClientsList() {
   const [clients, setClients] = useState([]);
@@ -27,6 +28,15 @@ export default function ClientsList() {
     fetchClients();
   }, []);
 
+  const handleSearch = () => {
+      fetchClients();
+  };
+
+    const handleFormSuccess = () => {
+      fetchClients();
+      closeForm();
+    };
+
   const handleDelete = async (client) => {
     if (!confirm(`Delete client "${client.name}"?`)) return;
 
@@ -38,6 +48,11 @@ export default function ClientsList() {
     }
   };
 
+  const closeForm = () => {
+      setOpenForm(false);
+      setEditingClient(null); 
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -47,7 +62,7 @@ export default function ClientsList() {
       <FilterBar
         search={search}
         setSearch={setSearch}
-        onSearch={fetchClients}
+        onSearch={handleSearch}
         onAdd={() => {
           setEditingClient(null);
           setOpenForm(true);
@@ -77,22 +92,17 @@ export default function ClientsList() {
       </div>
 
       {openForm && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40">
-          <div className="bg-white p-6 rounded shadow w-full max-w-md">
+        <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-40">
+          <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4">
-              {editingClient ? "Edit Client" : "Add Client"}
+                {editingClient ? "Edit Client" : "Add Client"}
             </h2>
-
-            <p className="text-gray-500">
-              Form
-            </p>
-
-            <button
-              className="mt-4 text-sm px-3 py-2 rounded bg-gray-200 hover:bg-gray-300"
-              onClick={() => setOpenForm(false)}
-            >
-              Close
-            </button>
+            
+            <ClientForm 
+                client={editingClient} 
+                onSuccess={handleFormSuccess}
+                onClose={closeForm}
+            />
           </div>
         </div>
       )}
