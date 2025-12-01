@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { getLandShipments, deleteLandShipment } from "../../api/landShipments";
+import { getSeaShipments, deleteSeaShipment } from "../../api/seaShipments";
 import DataTable from "../../components/Table/DataTable";
 import { getClients } from "../../api/clients";
 import { getProducts } from "../../api/products";
-import { getWarehouses } from "../../api/warehouses";
-import LandShipmentForm from "../../components/Forms/LandShipmentForm";
+import { getPorts } from "../../api/ports";
+import SeaShipmentForm from "../../components/Forms/SeaShipmentForm";
 
-export default function LandShipmentsList() {
+export default function SeaShipmentsList() {
   const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [filters, setFilters] = useState({
     client_id: "",
     product_id: "",
-    warehouse_id: "",
-    plate: "",
+    port_id: "",
+    fleet_number: "",
     guide_number: "",
     date_from: "",
     date_to: "",
@@ -22,7 +22,7 @@ export default function LandShipmentsList() {
 
   const [clients, setClients] = useState([]);
   const [products, setProducts] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
+  const [ports, setPorts] = useState([]); // Estado para Puertos
   const [masterDataLoaded, setMasterDataLoaded] = useState(false);
 
   const [openForm, setOpenForm] = useState(false);
@@ -44,7 +44,7 @@ export default function LandShipmentsList() {
         Object.entries(filters).filter(([_, v]) => v !== "" && v !== null)
       );
 
-      const response = await getLandShipments(cleanFilters);
+      const response = await getSeaShipments(cleanFilters);
       const rawData = response.data || [];
 
       const formattedData = rawData.map((item) => ({
@@ -56,7 +56,7 @@ export default function LandShipmentsList() {
 
       setShipments(formattedData);
     } catch (error) {
-      console.error("Error loading land shipments:", error);
+      console.error("Error loading sea shipments:", error);
     } finally {
       setLoading(false);
     }
@@ -65,14 +65,14 @@ export default function LandShipmentsList() {
   useEffect(() => {
     const loadMasterData = async () => {
       try {
-        const [clientsRes, productsRes, warehousesRes] = await Promise.all([
+        const [clientsRes, productsRes, portsRes] = await Promise.all([
           getClients(),
           getProducts(),
-          getWarehouses(),
+          getPorts(),
         ]);
         setClients(clientsRes.data || []);
         setProducts(productsRes.data || []);
-        setWarehouses(warehousesRes.data || []);
+        setPorts(portsRes.data || []);
       } catch (error) {
         console.error("Error loading master data:", error);
       } finally {
@@ -102,7 +102,7 @@ export default function LandShipmentsList() {
   const handleDelete = async (shipment) => {
     if (!confirm(`Delete shipment #${shipment.guide_number}?`)) return;
     try {
-      await deleteLandShipment(shipment.id);
+      await deleteSeaShipment(shipment.id);
       fetchShipments();
     } catch (error) {
       console.error("Error deleting shipment:", error);
@@ -116,12 +116,11 @@ export default function LandShipmentsList() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Land Shipments</h1>
+      <h1 className="text-2xl font-semibold mb-6">Sea Shipments</h1>
 
       <div className="bg-white p-4 shadow rounded-md mb-6 border border-blue-100">
         <h3 className="font-medium mb-3">Filter Shipments</h3>
         <div className="grid grid-cols-4 gap-4 items-end">
-          {/* Selectors */}
           <div>
             <label className="block text-sm font-medium mb-1">Client</label>
             <select
@@ -155,30 +154,32 @@ export default function LandShipmentsList() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Warehouse</label>
+            <label className="block text-sm font-medium mb-1">Port</label>
             <select
-              name="warehouse_id"
-              value={filters.warehouse_id}
+              name="port_id"
+              value={filters.port_id}
               onChange={handleFilterChange}
               className="w-full border p-2 rounded-md"
             >
-              <option value="">All Warehouses</option>
-              {warehouses.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
+              <option value="">All Ports</option>
+              {ports.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Plate</label>
+            <label className="block text-sm font-medium mb-1">
+              Fleet Number
+            </label>
             <input
               type="text"
-              name="plate"
-              value={filters.plate}
+              name="fleet_number"
+              value={filters.fleet_number}
               onChange={handleFilterChange}
-              placeholder="Vehicle Plate"
+              placeholder="ABC1234D"
               className="w-full border p-2 rounded-md"
             />
           </div>
@@ -245,12 +246,11 @@ export default function LandShipmentsList() {
               { label: "Guide No.", accessor: "guide_number" },
               { label: "Client ID", accessor: "client_id" },
               { label: "Product ID", accessor: "product_id" },
-              { label: "Warehouse ID", accessor: "warehouse_id" },
-              { label: "Plate", accessor: "plate" },
+              { label: "Port ID", accessor: "port_id" },
+              { label: "Fleet No.", accessor: "fleet_number" },
               { label: "Qty", accessor: "quantity" },
               { label: "Reg. Date", accessor: "register_date_fmt" },
               { label: "Del. Date", accessor: "delivery_date_fmt" },
-
               { label: "Price", accessor: "price" },
               { label: "Disc.", accessor: "discount" },
               { label: "Final Price", accessor: "final_price" },
@@ -271,16 +271,14 @@ export default function LandShipmentsList() {
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-40">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-2xl">
             <h2 className="text-xl font-semibold mb-4">
-              {editingShipment
-                ? "Edit Land Shipment"
-                : "Register Land Shipment"}
+              {editingShipment ? "Edit Sea Shipment" : "Register Sea Shipment"}
             </h2>
 
-            <LandShipmentForm
+            <SeaShipmentForm
               shipment={editingShipment}
               onSuccess={handleFormSuccess}
               onClose={closeForm}
-              masterData={{ clients, products, warehouses }}
+              masterData={{ clients, products, ports }}
             />
           </div>
         </div>

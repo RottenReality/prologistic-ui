@@ -7,6 +7,7 @@ import ProductsList from './pages/Products/ProductsList';
 import PortsList from './pages/Ports/PortsList';
 import WarehousesList from './pages/Warehouses/WarehousesList';
 import LandShipmentsList from './pages/LandShipments/LandShipmentsList';
+import SeaShipmentsList from './pages/SeaShipments/SeaShipmentsList';
 
 function App() {
 
@@ -21,7 +22,7 @@ function App() {
           <Route path="ports" element={<PortsList/>} />
           <Route path="warehouses" element={<WarehousesList/>} />
           <Route path="land-shipments" element={<LandShipmentsList/>} />
-          <Route path="sea-shipments" element={<div>Sea Shipments</div>} />
+          <Route path="sea-shipments" element={<SeaShipmentsList/>} />
         </Route>
       </Routes>
     </BrowserRouter>

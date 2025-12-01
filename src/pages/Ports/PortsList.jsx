@@ -1,5 +1,3 @@
-// src/pages/Ports/PortsList.jsx
-
 import { useEffect, useState } from "react";
 import { getPorts, deletePort } from "../../api/ports";
 import DataTable from "../../components/Table/DataTable";
