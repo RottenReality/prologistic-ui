@@ -3,6 +3,7 @@ import Layout from "./components/Layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import './App.css'
 import ClientsList from './pages/Clients/ClientsList';
+import ProductsList from './pages/Products/ProductsList';
 
 function App() {
 
@@ -13,7 +14,7 @@ function App() {
           <Route index element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="clients" element={<ClientsList/>} />
-          <Route path="products" element={<div>Products</div>} />
+          <Route path="products" element={<ProductsList/>} />
           <Route path="ports" element={<div>Ports</div>} />
           <Route path="warehouses" element={<div>Warehouses</div>} />
           <Route path="land-shipments" element={<div>Land Shipments</div>} />
