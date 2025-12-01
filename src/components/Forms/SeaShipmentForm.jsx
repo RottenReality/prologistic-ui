@@ -1,27 +1,24 @@
 import { useState, useEffect } from "react";
-import {
-  createLandShipment,
-  updateLandShipment,
-} from "../../api/landShipments";
+import { createSeaShipment, updateSeaShipment } from "../../api/seaShipments";
 
-export default function LandShipmentForm({
+export default function SeaShipmentForm({
   shipment,
   onClose,
   onSuccess,
   masterData,
 }) {
   const isEditing = Boolean(shipment);
-  const { clients, products, warehouses } = masterData;
+  const { clients, products, ports } = masterData;
 
   const [formData, setFormData] = useState({
     client_id: "",
     product_id: "",
-    warehouse_id: "",
+    port_id: "",
     quantity: 1,
     register_date: new Date().toISOString().split("T")[0],
     delivery_date: "",
     price: 0,
-    plate: "",
+    fleet_number: "",
     guide_number: "",
   });
   const [loading, setLoading] = useState(false);
@@ -32,7 +29,7 @@ export default function LandShipmentForm({
       setFormData({
         client_id: shipment.client_id,
         product_id: shipment.product_id,
-        warehouse_id: shipment.warehouse_id,
+        port_id: shipment.port_id,
         quantity: shipment.quantity,
         register_date: shipment.register_date
           ? shipment.register_date.split("T")[0]
@@ -41,7 +38,7 @@ export default function LandShipmentForm({
           ? shipment.delivery_date.split("T")[0]
           : "",
         price: shipment.price,
-        plate: shipment.plate,
+        fleet_number: shipment.fleet_number,
         guide_number: shipment.guide_number,
       });
     }
@@ -51,9 +48,7 @@ export default function LandShipmentForm({
     const { name, value } = e.target;
     let newValue = value;
     if (
-      ["client_id", "product_id", "warehouse_id", "quantity", "price"].includes(
-        name
-      )
+      ["client_id", "product_id", "port_id", "quantity", "price"].includes(name)
     ) {
       newValue = value === "" ? "" : Number(value);
     }
@@ -74,13 +69,13 @@ export default function LandShipmentForm({
 
     try {
       if (isEditing) {
-        await updateLandShipment(shipment.id, dataToSend);
+        await updateSeaShipment(shipment.id, dataToSend);
       } else {
-        await createLandShipment(dataToSend);
+        await createSeaShipment(dataToSend);
       }
       onSuccess();
     } catch (err) {
-      console.error("Error saving land shipment:", err);
+      console.error("Error saving sea shipment:", err);
       const apiError =
         err.response?.data?.detail || "An unexpected error occurred.";
       setError(apiError);
@@ -129,19 +124,21 @@ export default function LandShipmentForm({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Warehouse</label>
+          <label className="block text-sm font-medium mb-1">
+            Port (Delivery)
+          </label>
           <select
-            name="warehouse_id"
-            value={formData.warehouse_id}
+            name="port_id"
+            value={formData.port_id}
             onChange={handleChange}
             required
             disabled={loading}
             className="border px-3 py-2 rounded-md w-full"
           >
-            <option value="">Select Warehouse</option>
-            {warehouses.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
+            <option value="">Select Port</option>
+            {ports.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
               </option>
             ))}
           </select>
@@ -179,13 +176,14 @@ export default function LandShipmentForm({
       <div className="grid grid-cols-2 gap-4 border-t pt-4">
         <div>
           <label className="block text-sm font-medium mb-1">
-            Vehicle Plate (6 chars)
+            Fleet Number (Example: ABC1234D)
           </label>
           <input
-            name="plate"
-            value={formData.plate}
+            name="fleet_number"
+            value={formData.fleet_number}
             onChange={handleChange}
-            maxLength="6"
+            maxLength="8"
+            placeholder="ABC1234D"
             required
             disabled={loading}
             className="border px-3 py-2 rounded-md w-full uppercase"
